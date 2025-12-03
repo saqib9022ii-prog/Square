@@ -1,65 +1,80 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import "./ChatRoom.css";
 
-const SOCKET_URL = "https://saqib9022ii.pythonanywhere.com"; 
-// ✅ backend base URL (NO /auth)
-
-let socket;
+// ✅ BACKEND URL (Socket.IO server)
+const socket = io("https://saqib9022ii.pythonanywhere.com", {
+  transports: ["websocket"],
+  withCredentials: true,
+});
 
 export default function ChatRoom({ userEmail }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
-  // 🔌 Connect to socket once
+  // ✅ SOCKET CONNECTION + LISTENER
   useEffect(() => {
-    socket = io(SOCKET_URL, {
-      withCredentials: true,
-    });
-
     socket.on("connect", () => {
-      console.log("✅ Connected to socket:", socket.id);
+      console.log("✅ Socket connected:", socket.id);
     });
 
-    // ✅ Listen for messages
     socket.on("receive_message", (data) => {
+      console.log("📥 Received:", data);
       setMessages((prev) => [...prev, data]);
     });
 
+    socket.on("disconnect", () => {
+      console.log("❌ Socket disconnected");
+    });
+
     return () => {
+      socket.off("receive_message");
       socket.disconnect();
     };
   }, []);
 
-  // 📩 Send message
+  // ✅ SEND MESSAGE
   const sendMessage = () => {
     if (!message.trim()) return;
 
+    console.log("📤 Sending:", message);
+
     socket.emit("send_message", {
       sender: userEmail,
-      message,
+      message: message,
     });
 
     setMessage("");
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="chat-container">
       <h2>Chat Room</h2>
 
-      <div style={{ border: "1px solid #ccc", height: "300px", overflowY: "auto" }}>
-        {messages.map((m, i) => (
-          <div key={i}>
-            <strong>{m.sender}:</strong> {m.message}
+      <div className="messages-box">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`message ${
+              msg.sender === userEmail ? "own" : "other"
+            }`}
+          >
+            <strong>{msg.sender}</strong>
+            <p>{msg.message}</p>
           </div>
         ))}
       </div>
 
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type message..."
-      />
-      <button onClick={sendMessage}>Send</button>
+      <div className="input-area">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button onClick={sendMessage}>Send</button>
+      </div>
     </div>
   );
 }

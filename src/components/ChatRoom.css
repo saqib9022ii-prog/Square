@@ -1,25 +1,48 @@
-.chatroom-container {
-  max-width: 500px;
-  margin: 60px auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
+.chat-container {
+  max-width: 600px;
+  margin: 40px auto;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 10px;
+  background: white;
 }
 
-.get-started-btn {
-  width: 100%;
-  padding: 12px;
-}
-
-.search-input {
-  width: 100%;
+.messages-box {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #190404;
+  color:#fff;
   padding: 10px;
   margin-bottom: 10px;
 }
 
-.user-card {
+.message {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.own {
+  background: #dcf8c6;
+  text-align: right;
+}
+
+.other {
+  background: #f1f1f1;
+  text-align: left;
+}
+
+.input-area {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
   padding: 8px;
-  border-bottom: 1px solid #eee;
+}
+
+.input-area button {
+  padding: 8px 12px;
+  cursor: pointer;
 }
