@@ -1,0 +1,208 @@
+/* ===== File Manager Container ===== */
+.file-manager {
+  color: #0caef9;
+  text-align: center;
+  padding: 40px 20px;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  background: #fafafa;
+  min-height: 100vh;
+}
+
+/* ===== Upload Box ===== */
+.upload-box {
+  margin: 20px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  display: inline-block;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.upload-box input {
+  margin-right: 12px;
+}
+
+.upload-box button {
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.upload-box button:hover {
+  background-color: #0097a7;
+  transform: scale(1.05);
+}
+
+/* ===== App Grid ===== */
+.file-list {
+  margin-top: 40px;
+  padding: 0 20px;
+}
+
+.file-list h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+/* ===== Each App Card ===== */
+.app-card {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 220px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: 0.3s ease;
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ===== App Icon ===== */
+.app-icon {
+  width: 50px;       /* icon width */
+  height: 50px;      /* icon height */
+  margin-bottom: 12px; /* space below icon */
+  display: block;      /* ensures it takes full line */
+}
+
+.app-icon img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== App Name ===== */
+.app-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 12px;      /* space below name */
+  text-align: center;
+  display: block;            /* important to separate from icon */
+  width: 100%;
+  white-space: nowrap;       /* prevent breaking inside name */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* truncate long names */
+}
+
+/* ===== Mint Text ===== */
+.mint {
+  color: #0097a7;
+}
+
+/* ===== App Card Buttons ===== */
+.app-card button {
+  width: 100%;
+  max-width: 180px;
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.app-card button:hover {
+  background-color: #0097a7;
+}
+
+/* ===== Responsive for Mobile ===== */
+@media (max-width: 600px) {
+  .upload-box {
+    width: 90%;
+  }
+
+  .app-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .app-card {
+    width: 100%;
+  }
+}
+
+/* ===== App Logo ===== */
+.app-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+/* HTML: <div class="loader"></div> */
+.loader-overlay {
+ width: 100%;
+  height: 200px; /* or match container height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader {
+  width: 40px;
+  height: 20px;
+  --c:no-repeat radial-gradient(farthest-side,#FF6F00 93%,#1ab6e500);
+  background:
+    var(--c) 0    0,
+    var(--c) 50%  0;
+  background-size: 8px 8px;
+  position: relative;
+  clip-path: inset(-200% -100% 0 0);
+  animation: l6-0 1.5s linear infinite;
+}
+.loader:before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  background: #000;
+  left: -16px;
+  top: 0;
+  animation: 
+    l6-1 1.5s linear infinite,
+    l6-2 0.5s cubic-bezier(0,200,.8,200) infinite;
+}
+.loader:after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #000; 
+  animation: l6-3 1.5s linear infinite;
+}
+@keyframes l6-0 {
+  0%,30%  {background-position: 0  0   ,50% 0   }
+  33%     {background-position: 0  100%,50% 0   }
+  41%,63% {background-position: 0  0   ,50% 0   }
+  66%     {background-position: 0  0   ,50% 100%}
+  74%,100%{background-position: 0  0   ,50% 0   }
+}
+@keyframes l6-1 {
+  90%  {transform:translateY(0)}
+  95%  {transform:translateY(15px)}
+  100% {transform:translateY(15px);left:calc(100% - 8px)}
+}
+@keyframes l6-2 {
+  100% {top:-0.1px}
+}
+@keyframes l6-3 {
+  0%,80%,100% {transform:translate(0)}
+  90%         {transform:translate(26px)}
+}

@@ -1,0 +1,132 @@
+/* UserDashboard.css */
+
+/* Container */
+.dashboard-container {
+  width: calc(100% - 32px);
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header: avatar + name */
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Avatar circle */
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-weight: bold;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hover effect: slightly enlarge + camera icon */
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.avatar::after {
+  content: "\f030"; /* FontAwesome camera unicode */
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 900;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.6);
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar:hover::after {
+  opacity: 1;
+}
+
+/* User name */
+.dashboard-header h2 {
+  font-size: 22px;
+  color: #333;
+  margin: 0;
+}
+
+/* Subtitle */
+.dashboard-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin: 12px 0 24px 0;
+}
+
+/* Logout button */
+.logout-btn {
+  padding: 12px 24px;
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c9302c;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .dashboard-container {
+    margin: 20px auto;
+    padding: 18px;
+  }
+
+  .avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+  }
+
+  .dashboard-header h2 {
+    font-size: 20px;
+  }
+
+  .dashboard-subtitle {
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    font-size: 13px;
+    padding: 10px 20px;
+  }
+}

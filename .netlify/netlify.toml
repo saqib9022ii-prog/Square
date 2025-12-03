@@ -1,0 +1,39 @@
+plugins = []
+headers = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\VS_CODE(PROJECTS)\\Project-1\\client\\front-end\\dist"
+publishOrigin = "ui"
+commandOrigin = "ui"
+base = "C:\\VS_CODE(PROJECTS)\\Project-1\\client\\front-end"
+command = "npm run build"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

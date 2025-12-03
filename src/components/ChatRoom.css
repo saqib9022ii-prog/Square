@@ -1,0 +1,25 @@
+.chatroom-container {
+  max-width: 500px;
+  margin: 60px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.get-started-btn {
+  width: 100%;
+  padding: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.user-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}

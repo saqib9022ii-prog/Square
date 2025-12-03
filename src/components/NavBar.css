@@ -1,0 +1,126 @@
+/* Navbar container */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 7px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  margin: 6px auto;
+  width: 60%;
+  max-width: 1100px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  color: #111;
+  background-image: url("/navback.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Left nav (icons) */
+.nav-left {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each nav item */
+.nav-item {
+  width: 29px;       /* fixed square container */
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: transform 0.25s ease;
+  cursor: pointer;
+  background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+  padding: 10px;       /* remove extra space */
+}
+
+.nav-item.personal {
+  background: linear-gradient(135deg, #ff7043, #ffab91);
+}
+
+.nav-item:hover {
+  transform: scale(1.1);
+}
+
+/* NavLink inside nav-item */
+.nav-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;       /* important: remove padding */
+}
+
+/* Icons */
+.home-icon,
+.lock-icon,
+.chat-icon
+{
+  width: 24px;
+  height: 24px;
+  
+}
+.app-icon{
+  width:20px;
+  height:20px;
+}
+
+/* Right nav links */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: midnightblue;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    padding: 4px 6px;
+    border-radius: 12px;
+  }
+
+  .nav-left {
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-links a {
+    width: 100%;
+    padding: 4px 0;
+  }
+}
