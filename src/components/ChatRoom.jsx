@@ -1,58 +1,65 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./ChatRoom.css";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
-const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
+const SOCKET_URL = "https://saqib9022ii.pythonanywhere.com"; 
+// ✅ backend base URL (NO /auth)
+
+let socket;
 
 export default function ChatRoom({ userEmail }) {
-  const [started, setStarted] = useState(false);
-  const [search, setSearch] = useState("");
-  const [results, setResults] = useState([]);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
 
-  const searchUsers = async () => {
-    if (!search) return;
+  // 🔌 Connect to socket once
+  useEffect(() => {
+    socket = io(SOCKET_URL, {
+      withCredentials: true,
+    });
 
-    try {
-      const res = await axios.get(`${BASE_URL}/auth/search-users`, {
-        params: { email: search }
-      });
-      setResults(res.data.users);
-    } catch (err) {
-      console.error(err);
-      alert("Search failed");
-    }
+    socket.on("connect", () => {
+      console.log("✅ Connected to socket:", socket.id);
+    });
+
+    // ✅ Listen for messages
+    socket.on("receive_message", (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // 📩 Send message
+  const sendMessage = () => {
+    if (!message.trim()) return;
+
+    socket.emit("send_message", {
+      sender: userEmail,
+      message,
+    });
+
+    setMessage("");
   };
 
   return (
-    <div className="chatroom-container">
-      <h2>ChatRoom</h2>
+    <div style={{ padding: "20px" }}>
+      <h2>Chat Room</h2>
 
-      {!started ? (
-        <button className="get-started-btn" onClick={() => setStarted(true)}>
-          Get Started
-        </button>
-      ) : (
-        <>
-          <input
-            className="search-input"
-            type="email"
-            placeholder="Search by email"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <button onClick={searchUsers}>Search</button>
-
-          <div className="search-results">
-            {results.map((user) => (
-              <div key={user.email} className="user-card">
-                <p>{user.email}</p>
-                <button>Start Chat</button>
-              </div>
-            ))}
+      <div style={{ border: "1px solid #ccc", height: "300px", overflowY: "auto" }}>
+        {messages.map((m, i) => (
+          <div key={i}>
+            <strong>{m.sender}:</strong> {m.message}
           </div>
-        </>
-      )}
+        ))}
+      </div>
+
+      <input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type message..."
+      />
+      <button onClick={sendMessage}>Send</button>
     </div>
   );
 }
