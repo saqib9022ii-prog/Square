@@ -39,17 +39,16 @@ export default function ChatRoom({ userEmail }) {
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const payload = {
-      sender: userEmail,
-      message
-    };
+    const payload = {message};
 
     // Optimistic UI
     setMessage("");
 
     try {
-      await axios.post(`${BASE_URL}/chat/send`, payload);
-       console.log("Message sent");
+      await axios.post(`${BASE_URL}/chat/send`, payload,{
+        withCredentials:true,
+      });
+      console.log("Message sent");
     } catch (error) {
       console.error("Send message error", error);
     }
