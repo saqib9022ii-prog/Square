@@ -7,13 +7,15 @@ function Render(){
 
     return(
         <div className="testcontainer">
-            <h2>Login to get started</h2>
-            <button
-                className="get-started-btn"
-                onClick={() => navigate('/personal')}
-            >
-                Login
-            </button>
+            <div className="glass-card">
+                <h2>Login to get started</h2>
+                <button
+                    className="get-started-btn"
+                    onClick={() => navigate('/personal')}
+                >
+                    Login
+                </button>
+            </div>
         </div>
     )
 }

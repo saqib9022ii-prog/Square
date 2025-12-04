@@ -1,6 +1,7 @@
 
 .testcontainer {
 	display: flex;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 	flex-direction: column;
 	justify-content: center; /* vertical center */
 	align-items: center; /* horizontal center */
@@ -15,13 +16,46 @@
 	padding: 0.6rem 1.2rem;
 	border-radius: 6px;
 	border: none;
-	background: #3b82f6; /* blue */
+	background: #f89b18; /* accent */
 	color: #fff;
 	cursor: pointer;
 	font-weight: 600;
 }
 
 .get-started-btn:hover {
-	background: #2563eb;
+	background: #333;
 }
+
+/* Glassy card */
+.glass-card {
+	width: 100%;
+	max-width: 420px;
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(10px) saturate(120%);
+	-webkit-backdrop-filter: blur(10px) saturate(120%);
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+	color: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+
+.glass-card h2 {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #ffffff;
+}
+
+@media (max-width: 480px) {
+	.glass-card {
+		padding: 1.25rem;
+		border-radius: 10px;
+	}
+}
+
 
