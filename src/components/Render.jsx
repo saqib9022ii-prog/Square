@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "./Render.css";
 
 function Render(){
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ function Render(){
                 className="get-started-btn"
                 onClick={() => navigate('/personal')}
             >
-                Get Started
+                Login
             </button>
         </div>
     )

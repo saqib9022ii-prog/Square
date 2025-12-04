@@ -1,0 +1,27 @@
+
+.testcontainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center; /* vertical center */
+	align-items: center; /* horizontal center */
+	min-height: 100vh; /* fill viewport so centering works */
+	gap: 1rem;
+	padding: 1rem;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+.get-started-btn {
+	padding: 0.6rem 1.2rem;
+	border-radius: 6px;
+	border: none;
+	background: #3b82f6; /* blue */
+	color: #fff;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.get-started-btn:hover {
+	background: #2563eb;
+}
+
