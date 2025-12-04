@@ -5,6 +5,7 @@ import Personal from "./components/Personal";
 import Apps from "./components/Apps";
 import ChatRoom from "./components/ChatRoom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Render from "./components/Render";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -25,6 +26,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route path="/render" element={<Render/>}/>
       </Routes>
     </Router>
   );
