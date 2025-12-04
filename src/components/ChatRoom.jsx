@@ -4,21 +4,29 @@ import "./ChatRoom.css";
 
 const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 
-export default function ChatRoom({ userEmail }) {
+export default function ChatRoom() {
+  const [userEmail, setUserEmail] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
-  // ✅ AUTO REFRESH ONCE WHEN USER APPEARS
+  // ✅ GET EMAIL DIRECTLY FROM URL (CRITICAL FIX)
   useEffect(() => {
-    if (userEmail && !sessionStorage.getItem("chat_refreshed")) {
-      sessionStorage.setItem("chat_refreshed", "true");
-      window.location.reload();
-    }
-  }, [userEmail]);
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
 
-  // ✅ Fetch initial messages
+    if (email) {
+      setUserEmail(email);
+      localStorage.setItem("user_email", email);
+    } else {
+      // fallback for refresh
+      const saved = localStorage.getItem("user_email");
+      if (saved) setUserEmail(saved);
+    }
+  }, []);
+
+  // ✅ INITIAL FETCH
   useEffect(() => {
     if (!userEmail) return;
 
@@ -33,7 +41,7 @@ export default function ChatRoom({ userEmail }) {
     fetchInitial();
   }, [userEmail]);
 
-  // ✅ Poll
+  // ✅ POLLING
   useEffect(() => {
     if (!userEmail) return;
 
@@ -41,6 +49,7 @@ export default function ChatRoom({ userEmail }) {
       const res = await axios.get(
         `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
       );
+
       if (res.data.length > 0) {
         setMessages(prev => [...prev, ...res.data]);
         lastIdRef.current = res.data[res.data.length - 1].id;
@@ -55,7 +64,7 @@ export default function ChatRoom({ userEmail }) {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !userEmail) return;
 
     await axios.post(
       `${BASE_URL}/chat/send`,
@@ -82,7 +91,7 @@ export default function ChatRoom({ userEmail }) {
             <p>{m.message}</p>
           </div>
         ))}
-        <div ref={bottomRef} />
+        <div ref={bottomRef}></div>
       </div>
 
       <div className="chat-input">
