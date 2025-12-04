@@ -6,27 +6,30 @@ const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 
 export default function ChatRoom() {
   const [userEmail, setUserEmail] = useState(null);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
-  // ✅ GET EMAIL DIRECTLY FROM URL (CRITICAL FIX)
+  // ✅ GET LOGGED-IN USER FROM BACKEND SESSION
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const email = params.get("email");
-
-    if (email) {
-      setUserEmail(email);
-      localStorage.setItem("user_email", email);
-    } else {
-      // fallback for refresh
-      const saved = localStorage.getItem("user_email");
-      if (saved) setUserEmail(saved);
-    }
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/auth/me`, {
+          withCredentials: true,
+        });
+        setUserEmail(res.data.email);
+      } catch {
+        setUserEmail(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
   }, []);
 
-  // ✅ INITIAL FETCH
+  // ✅ FETCH MESSAGES ONLY AFTER USER EXISTS
   useEffect(() => {
     if (!userEmail) return;
 
@@ -37,7 +40,6 @@ export default function ChatRoom() {
         lastIdRef.current = res.data[res.data.length - 1].id;
       }
     };
-
     fetchInitial();
   }, [userEmail]);
 
@@ -49,7 +51,6 @@ export default function ChatRoom() {
       const res = await axios.get(
         `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
       );
-
       if (res.data.length > 0) {
         setMessages(prev => [...prev, ...res.data]);
         lastIdRef.current = res.data[res.data.length - 1].id;
@@ -64,23 +65,22 @@ export default function ChatRoom() {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!message.trim() || !userEmail) return;
+    if (!message.trim()) return;
 
     await axios.post(
       `${BASE_URL}/chat/send`,
-      { sender: userEmail, message },
+      { message },
       { withCredentials: true }
     );
-
     setMessage("");
   };
 
-  if (!userEmail) return <p>Loading chat...</p>;
+  if (loading) return <p>Loading chat...</p>;
+  if (!userEmail) return <p>Please login first</p>;
 
   return (
     <div className="chat-container">
       <h2>Chat Room</h2>
-
       <div className="chat-box">
         {messages.map(m => (
           <div
@@ -91,7 +91,7 @@ export default function ChatRoom() {
             <p>{m.message}</p>
           </div>
         ))}
-        <div ref={bottomRef}></div>
+        <div ref={bottomRef} />
       </div>
 
       <div className="chat-input">
