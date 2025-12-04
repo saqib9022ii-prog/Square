@@ -1,77 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import "./ChatRoom.css";
 
-// ✅ BACKEND URL (Socket.IO server)
-const socket = io("https://saqib9022ii.pythonanywhere.com", {
-  transports: ["websocket"],
-  withCredentials: true,
-});
+const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 
 export default function ChatRoom({ userEmail }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [lastId, setLastId] = useState(0);
+  const bottomRef = useRef(null);
 
-  // ✅ SOCKET CONNECTION + LISTENER
+  // ✅ Poll messages every 2 seconds
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("✅ Socket connected:", socket.id);
-    });
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/chat/messages?after=${lastId}`
+        );
 
-    socket.on("receive_message", (data) => {
-      console.log("📥 Received:", data);
-      setMessages((prev) => [...prev, data]);
-    });
+        if (res.data.length > 0) {
+          setMessages(prev => [...prev, ...res.data]);
+          setLastId(res.data[res.data.length - 1].id);
+        }
+      } catch (err) {
+        console.error("Polling error", err);
+      }
+    }, 2000);
 
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
-    });
+    return () => clearInterval(interval);
+  }, [lastId]);
 
-    return () => {
-      socket.off("receive_message");
-      socket.disconnect();
-    };
-  }, []);
+  // ✅ Auto-scroll
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  // ✅ SEND MESSAGE
-  const sendMessage = () => {
+  // ✅ Send message
+  const sendMessage = async () => {
     if (!message.trim()) return;
 
-    console.log("📤 Sending:", message);
-
-    socket.emit("send_message", {
+    const payload = {
       sender: userEmail,
-      message: message,
-    });
+      message
+    };
 
+    // Optimistic UI
     setMessage("");
+
+    await axios.post(`${BASE_URL}/chat/send`, payload);
   };
 
   return (
     <div className="chat-container">
       <h2>Chat Room</h2>
 
-      <div className="messages-box">
-        {messages.map((msg, index) => (
+      <div className="chat-box">
+        {messages.map(m => (
           <div
-            key={index}
-            className={`message ${
-              msg.sender === userEmail ? "own" : "other"
+            key={m.id}
+            className={`chat-message ${
+              m.sender === userEmail ? "mine" : "theirs"
             }`}
           >
-            <strong>{msg.sender}</strong>
-            <p>{msg.message}</p>
+            <strong>{m.sender}</strong>
+            <p>{m.message}</p>
           </div>
         ))}
+        <div ref={bottomRef}></div>
       </div>
 
-      <div className="input-area">
+      <div className="chat-input">
         <input
-          type="text"
-          placeholder="Type a message..."
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onChange={e => setMessage(e.target.value)}
+          placeholder="Type a message..."
         />
         <button onClick={sendMessage}>Send</button>
       </div>
