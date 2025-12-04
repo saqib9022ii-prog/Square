@@ -7,6 +7,7 @@ function Render(){
 
     return(
         <div className="testcontainer">
+            <img src="/mint.png" alt="Mint" className="mint-icon"/>
             <div className="glass-card">
                 <h2>Login to get started</h2>
                 <button
