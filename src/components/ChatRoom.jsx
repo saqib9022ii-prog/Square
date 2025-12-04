@@ -7,8 +7,14 @@ const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 export default function ChatRoom({ userEmail }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const lastIdRef = useRef(0); // useRef instead of state
+  const lastIdRef = useRef(0); // track last fetched message id
   const bottomRef = useRef(null);
+  const [currentUser, setCurrentUser] = useState(userEmail); // track logged-in user
+
+  // ✅ Update currentUser whenever prop changes (after login)
+  useEffect(() => {
+    setCurrentUser(userEmail);
+  }, [userEmail]);
 
   // ✅ Fetch initial messages once
   useEffect(() => {
@@ -43,19 +49,19 @@ export default function ChatRoom({ userEmail }) {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []); // no dependency, safe now
+  }, []);
 
-  // ✅ Auto-scroll
+  // ✅ Auto-scroll to bottom when messages update
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // ✅ Send message
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !currentUser) return;
 
     const payload = {
-      sender: userEmail,
+      sender: currentUser,
       message
     };
 
@@ -72,17 +78,26 @@ export default function ChatRoom({ userEmail }) {
   return (
     <div className="chat-container">
       <h2>Chat Room</h2>
+
       <div className="chat-box">
         {messages.map(m => (
-          <div key={m.id} className={`chat-message ${m.sender === userEmail ? "mine" : "theirs"}`}>
+          <div
+            key={m.id}
+            className={`chat-message ${m.sender === currentUser ? "mine" : "theirs"}`}
+          >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
           </div>
         ))}
         <div ref={bottomRef}></div>
       </div>
+
       <div className="chat-input">
-        <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Type a message..." />
+        <input
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          placeholder="Type a message..."
+        />
         <button onClick={sendMessage}>Send</button>
       </div>
     </div>
