@@ -28,17 +28,12 @@
 
 .stat-card {
   flex: 1 1 150px;
-  /* frosted glass card */
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, #1a73e8, #4fc3f7);
   color: #fff;
   padding: 20px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.45);
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card h3 {
@@ -74,10 +69,4 @@ p.no-data {
   .stat-card {
     flex: 1 1 100%;
   }
-}
-
-/* Hover lift for cards */
-.stat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.55);
 }
