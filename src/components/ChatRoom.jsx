@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react"; 
 import axios from "axios";
 import "./ChatRoom.css";
 
@@ -9,12 +9,16 @@ export default function ChatRoom({ userEmail }) {
   const [messages, setMessages] = useState([]);
   const lastIdRef = useRef(0); // track last fetched message id
   const bottomRef = useRef(null);
-  const [currentUser, setCurrentUser] = useState(userEmail); // track logged-in user
+  const [currentUser, setCurrentUser] = useState(userEmail);
 
-  // ✅ Update currentUser whenever prop changes (after login)
+  // ✅ Auto-refresh once after login
   useEffect(() => {
+    if (userEmail && !currentUser) {
+      // refresh the page once to initialize session-dependent features
+      window.location.reload();
+    }
     setCurrentUser(userEmail);
-  }, [userEmail]);
+  }, [userEmail, currentUser]);
 
   // ✅ Fetch initial messages once
   useEffect(() => {
