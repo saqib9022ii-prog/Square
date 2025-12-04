@@ -41,12 +41,14 @@
   padding: 8px;
   border-radius: 10px;
   background-color:dodgerblue;
+  border:dodgerblue;
   color:#fff;
 }
 
 .chat-input button {
   padding: 8px 14px;
   background-color: orangered;
+  border:orangered;
   color:#fff;
   border-radius:10px;
 }
