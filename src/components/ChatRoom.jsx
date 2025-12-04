@@ -10,41 +10,40 @@ export default function ChatRoom({ userEmail }) {
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
-  // ✅ Fetch messages once user is READY
+  // ✅ AUTO REFRESH ONCE WHEN USER APPEARS
+  useEffect(() => {
+    if (userEmail && !sessionStorage.getItem("chat_refreshed")) {
+      sessionStorage.setItem("chat_refreshed", "true");
+      window.location.reload();
+    }
+  }, [userEmail]);
+
+  // ✅ Fetch initial messages
   useEffect(() => {
     if (!userEmail) return;
 
     const fetchInitial = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/chat/messages?after=0`);
-        setMessages(res.data);
-        if (res.data.length > 0) {
-          lastIdRef.current = res.data[res.data.length - 1].id;
-        }
-      } catch (err) {
-        console.error(err);
+      const res = await axios.get(`${BASE_URL}/chat/messages?after=0`);
+      setMessages(res.data);
+      if (res.data.length > 0) {
+        lastIdRef.current = res.data[res.data.length - 1].id;
       }
     };
 
     fetchInitial();
   }, [userEmail]);
 
-  // ✅ Poll messages
+  // ✅ Poll
   useEffect(() => {
     if (!userEmail) return;
 
     const interval = setInterval(async () => {
-      try {
-        const res = await axios.get(
-          `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
-        );
-
-        if (res.data.length > 0) {
-          setMessages(prev => [...prev, ...res.data]);
-          lastIdRef.current = res.data[res.data.length - 1].id;
-        }
-      } catch (err) {
-        console.error(err);
+      const res = await axios.get(
+        `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
+      );
+      if (res.data.length > 0) {
+        setMessages(prev => [...prev, ...res.data]);
+        lastIdRef.current = res.data[res.data.length - 1].id;
       }
     }, 2000);
 
@@ -55,31 +54,19 @@ export default function ChatRoom({ userEmail }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✅ Send message (SAFE)
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    if (!userEmail) {
-      alert("User not ready yet, please wait...");
-      return;
-    }
+    await axios.post(
+      `${BASE_URL}/chat/send`,
+      { sender: userEmail, message },
+      { withCredentials: true }
+    );
 
-    const payload = { sender: userEmail, message };
     setMessage("");
-
-    try {
-      await axios.post(`${BASE_URL}/chat/send`, payload, {
-        withCredentials: true
-      });
-    } catch (err) {
-      console.error("Send failed", err);
-    }
   };
 
-  // ✅ Prevent clicking too early
-  if (!userEmail) {
-    return <p>Loading chat...</p>;
-  }
+  if (!userEmail) return <p>Loading chat...</p>;
 
   return (
     <div className="chat-container">
@@ -102,11 +89,9 @@ export default function ChatRoom({ userEmail }) {
         <input
           value={message}
           onChange={e => setMessage(e.target.value)}
-          placeholder="Type message..."
+          placeholder="Type a message..."
         />
-        <button onClick={sendMessage} disabled={!userEmail}>
-          Send
-        </button>
+        <button onClick={sendMessage}>Send</button>
       </div>
     </div>
   );
