@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"; 
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./ChatRoom.css";
 
@@ -7,77 +7,79 @@ const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 export default function ChatRoom({ userEmail }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const lastIdRef = useRef(0); // track last fetched message id
+  const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
-  const [currentUser, setCurrentUser] = useState(userEmail);
 
-  // ✅ Auto-refresh once after login
+  // ✅ Fetch messages once user is READY
   useEffect(() => {
-    if (userEmail && !currentUser) {
-      // refresh the page once to initialize session-dependent features
-      window.location.reload();
-    }
-    setCurrentUser(userEmail);
-  }, [userEmail, currentUser]);
+    if (!userEmail) return;
 
-  // ✅ Fetch initial messages once
-  useEffect(() => {
     const fetchInitial = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/chat/messages?after=0`);
+        setMessages(res.data);
         if (res.data.length > 0) {
-          setMessages(res.data);
           lastIdRef.current = res.data[res.data.length - 1].id;
         }
       } catch (err) {
-        console.error("Initial fetch error", err);
+        console.error(err);
       }
     };
-    fetchInitial();
-  }, []);
 
-  // ✅ Poll messages every 2 seconds
+    fetchInitial();
+  }, [userEmail]);
+
+  // ✅ Poll messages
   useEffect(() => {
+    if (!userEmail) return;
+
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(
           `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
         );
+
         if (res.data.length > 0) {
           setMessages(prev => [...prev, ...res.data]);
           lastIdRef.current = res.data[res.data.length - 1].id;
         }
       } catch (err) {
-        console.error("Polling error", err);
+        console.error(err);
       }
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userEmail]);
 
-  // ✅ Auto-scroll to bottom when messages update
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✅ Send message
+  // ✅ Send message (SAFE)
   const sendMessage = async () => {
-    if (!message.trim() || !currentUser) return;
+    if (!message.trim()) return;
 
-    const payload = {
-      sender: currentUser,
-      message
-    };
+    if (!userEmail) {
+      alert("User not ready yet, please wait...");
+      return;
+    }
 
-    setMessage(""); // optimistic UI
+    const payload = { sender: userEmail, message };
+    setMessage("");
 
     try {
-      await axios.post(`${BASE_URL}/chat/send`, payload, { withCredentials: true });
-      console.log("Message sent");
-    } catch (error) {
-      console.error("Send message error", error);
+      await axios.post(`${BASE_URL}/chat/send`, payload, {
+        withCredentials: true
+      });
+    } catch (err) {
+      console.error("Send failed", err);
     }
   };
+
+  // ✅ Prevent clicking too early
+  if (!userEmail) {
+    return <p>Loading chat...</p>;
+  }
 
   return (
     <div className="chat-container">
@@ -87,22 +89,24 @@ export default function ChatRoom({ userEmail }) {
         {messages.map(m => (
           <div
             key={m.id}
-            className={`chat-message ${m.sender === currentUser ? "mine" : "theirs"}`}
+            className={`chat-message ${m.sender === userEmail ? "mine" : "theirs"}`}
           >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
           </div>
         ))}
-        <div ref={bottomRef}></div>
+        <div ref={bottomRef} />
       </div>
 
       <div className="chat-input">
         <input
           value={message}
           onChange={e => setMessage(e.target.value)}
-          placeholder="Type a message..."
+          placeholder="Type message..."
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage} disabled={!userEmail}>
+          Send
+        </button>
       </div>
     </div>
   );
