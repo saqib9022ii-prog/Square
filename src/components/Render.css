@@ -58,7 +58,11 @@
 	}
 }
 .mint-icon{
-    width:500px;
+	/* Responsive sizing: scales with viewport but stays within a reasonable range */
+	width: clamp(64px, 12vw, 220px);
+	height: auto;
+	display: block;
+	margin-bottom: 1rem;
 }
 
 
