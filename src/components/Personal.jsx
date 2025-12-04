@@ -14,31 +14,31 @@ export default function Personal() {
   const [userEmail, setUserEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ---------------- CHECK SESSION ----------------
+  // ---------------- Load persisted login state ----------------
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/me`, { withCredentials: true });
-        setIsLoggedIn(true);
-        setUserName(res.data.name);
-        setUserEmail(res.data.email);
-      } catch (err) {
-        setIsLoggedIn(false);
-      }
-    };
-
-    // Check URL query params for Google login redirect
     const params = new URLSearchParams(window.location.search);
     const queryEmail = params.get("email");
     const queryName = params.get("name");
 
     if (queryEmail && queryName) {
+      // Login via Google redirect
       setIsLoggedIn(true);
       setUserName(queryName);
       setUserEmail(queryEmail);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ email: queryEmail, name: queryName })
+      );
       window.history.replaceState({}, document.title, "/personal");
-    } else {
-      checkSession();
+      return;
+    }
+
+    // Check localStorage for persisted user
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser?.email) {
+      setIsLoggedIn(true);
+      setUserName(savedUser.name || savedUser.email.split("@")[0]);
+      setUserEmail(savedUser.email);
     }
   }, []);
 
@@ -76,8 +76,15 @@ export default function Personal() {
       setIsLoggedIn(true);
       setUserName(nameFromRes);
       setUserEmail(email);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ email, name: nameFromRes })
+      );
       setEmail("");
       setPassword("");
+
+      // Force page reload once to initialize chat immediately
+      window.location.reload();
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.error || "Login failed!");
@@ -101,6 +108,7 @@ export default function Personal() {
     setIsLoggedIn(false);
     setUserName("");
     setUserEmail("");
+    localStorage.removeItem("user");
   };
 
   // ---------------- RENDER ----------------
