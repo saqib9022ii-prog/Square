@@ -2,6 +2,7 @@
   max-width: 600px;
   margin: auto;
   padding: 20px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .chat-box {
@@ -9,6 +10,7 @@
   overflow-y: auto;
   border: 1px solid #ddd;
   padding: 10px;
+  border-radius:10px;
   margin-bottom: 10px;
   background: #fafafa;
 }
@@ -37,8 +39,18 @@
 .chat-input input {
   flex: 1;
   padding: 8px;
+  border-radius: 10px;
+  background-color:dodgerblue;
+  color:#fff;
 }
 
 .chat-input button {
   padding: 8px 14px;
+  background-color: orangered;
+  color:#fff;
+  border-radius:10px;
+}
+.chat-input button:hover{
+    background-color: rgb(249, 97, 41);
+
 }
