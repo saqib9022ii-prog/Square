@@ -12,7 +12,8 @@
   padding: 10px;
   border-radius:10px;
   margin-bottom: 10px;
-  background: #fafafa;
+  background:#333;
+  color:#fff;
 }
 
 .chat-message {
@@ -44,7 +45,9 @@
   border:dodgerblue;
   color:#fff;
 }
-
+.chat-input input::placeholder{
+  color:#fff;
+}
 .chat-input button {
   padding: 8px 14px;
   background-color: orangered;
