@@ -5,93 +5,109 @@ import "./ChatRoom.css";
 const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 
 export default function ChatRoom() {
-  const [userEmail, setUserEmail] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
-  const lastIdRef = useRef(0);
+  const [messages, setMessages] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const lastIdRef = useRef(0); // track last fetched message id
   const bottomRef = useRef(null);
 
-  // ✅ GET LOGGED-IN USER FROM BACKEND SESSION
+  // ---------------- Load current user from localStorage ----------------
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/auth/me`, {
-          withCredentials: true,
-        });
-        setUserEmail(res.data.email);
-      } catch {
-        setUserEmail(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser?.email) {
+      setCurrentUser(savedUser.email);
+    }
   }, []);
 
-  // ✅ FETCH MESSAGES ONLY AFTER USER EXISTS
+  // ---------------- Fetch initial messages once ----------------
   useEffect(() => {
-    if (!userEmail) return;
+    if (!currentUser) return; // wait until user is loaded
 
     const fetchInitial = async () => {
-      const res = await axios.get(`${BASE_URL}/chat/messages?after=0`);
-      setMessages(res.data);
-      if (res.data.length > 0) {
-        lastIdRef.current = res.data[res.data.length - 1].id;
+      try {
+        const res = await axios.get(`${BASE_URL}/chat/messages?after=0`, {
+          withCredentials: true
+        });
+        if (res.data.length > 0) {
+          setMessages(res.data);
+          lastIdRef.current = res.data[res.data.length - 1].id;
+        }
+      } catch (err) {
+        console.error("Initial fetch error", err);
       }
     };
     fetchInitial();
-  }, [userEmail]);
+  }, [currentUser]);
 
-  // ✅ POLLING
+  // ---------------- Poll new messages every 2 seconds ----------------
   useEffect(() => {
-    if (!userEmail) return;
+    if (!currentUser) return;
 
     const interval = setInterval(async () => {
-      const res = await axios.get(
-        `${BASE_URL}/chat/messages?after=${lastIdRef.current}`
-      );
-      if (res.data.length > 0) {
-        setMessages(prev => [...prev, ...res.data]);
-        lastIdRef.current = res.data[res.data.length - 1].id;
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/chat/messages?after=${lastIdRef.current}`,
+          { withCredentials: true }
+        );
+        if (res.data.length > 0) {
+          setMessages(prev => [...prev, ...res.data]);
+          lastIdRef.current = res.data[res.data.length - 1].id;
+        }
+      } catch (err) {
+        console.error("Polling error", err);
       }
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [userEmail]);
+  }, [currentUser]);
 
+  // ---------------- Auto-scroll ----------------
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ---------------- Send message ----------------
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !currentUser) return;
 
-    await axios.post(
-      `${BASE_URL}/chat/send`,
-      { message },
-      { withCredentials: true }
-    );
-    setMessage("");
+    const payload = {
+      sender: currentUser,
+      message
+    };
+
+    setMessage(""); // optimistic UI
+
+    try {
+      await axios.post(`${BASE_URL}/chat/send`, payload, {
+        withCredentials: true
+      });
+    } catch (err) {
+      console.error("Send message error", err);
+      alert("Failed to send message. Try again.");
+    }
   };
 
-  if (loading) return <p>Loading chat...</p>;
-  if (!userEmail) return <p>Please login first</p>;
+  if (!currentUser) {
+    return <p>Loading chat...</p>;
+  }
 
   return (
     <div className="chat-container">
       <h2>Chat Room</h2>
+
       <div className="chat-box">
         {messages.map(m => (
           <div
             key={m.id}
-            className={`chat-message ${m.sender === userEmail ? "mine" : "theirs"}`}
+            className={`chat-message ${
+              m.sender === currentUser ? "mine" : "theirs"
+            }`}
           >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
           </div>
         ))}
-        <div ref={bottomRef} />
+        <div ref={bottomRef}></div>
       </div>
 
       <div className="chat-input">
@@ -99,6 +115,7 @@ export default function ChatRoom() {
           value={message}
           onChange={e => setMessage(e.target.value)}
           placeholder="Type a message..."
+          onKeyDown={e => e.key === "Enter" && sendMessage()}
         />
         <button onClick={sendMessage}>Send</button>
       </div>
