@@ -39,7 +39,7 @@ export default function ChatRoom({ userEmail }) {
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const payload = {message};
+    const payload = {sender:userEmail,message};
 
     // Optimistic UI
     setMessage("");
