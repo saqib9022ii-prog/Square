@@ -47,7 +47,13 @@ export default function ChatRoom({ userEmail }) {
     // Optimistic UI
     setMessage("");
 
-    await axios.post(`${BASE_URL}/chat/send`, payload);
+    try {
+      await axios.post(`${BASE_URL}/chat/send`, payload);
+       console.log("Message sent");
+    } catch (error) {
+      console.error("Send message error", error);
+    }
+
   };
 
   return (
