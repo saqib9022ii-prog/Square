@@ -1,12 +1,19 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            // Use Node 20 (includes npm) and install Python on the fly
+            image 'node:20-bullseye'
+            args '-v /var/jenkins_home:/var/jenkins_home' // optional volume
+        }
+    }
 
     environment {
-        BASE_DIR = "${WORKSPACE}"  // Jenkins workspace
-        PYTHON_ENV = "${WORKSPACE}/venv"
+        VENV_DIR = "${WORKSPACE}/venv"
+        FRONTEND_DIR = "${WORKSPACE}/frontend"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Cloning repository...'
@@ -16,10 +23,12 @@ pipeline {
 
         stage('Setup Python') {
             steps {
-                echo 'Setting up Python virtual environment...'
+                echo 'Installing Python and setting up virtual environment...'
                 sh '''
-                python3 -m venv venv
-                source venv/bin/activate
+                apt-get update
+                apt-get install -y python3 python3-venv python3-pip
+                python3 -m venv ${VENV_DIR}
+                source ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
@@ -30,7 +39,7 @@ pipeline {
             steps {
                 echo 'Running backend tests...'
                 sh '''
-                source venv/bin/activate
+                source ${VENV_DIR}/bin/activate
                 pytest tests/ || exit 1
                 '''
             }
@@ -38,9 +47,9 @@ pipeline {
 
         stage('Setup Frontend') {
             steps {
-                echo 'Installing frontend dependencies...'
+                echo 'Installing frontend dependencies and building...'
                 sh '''
-                cd frontend
+                cd ${FRONTEND_DIR}
                 npm install
                 npm run build
                 '''
@@ -51,9 +60,9 @@ pipeline {
             steps {
                 echo 'Deploying project...'
                 sh '''
-                # Example: copy backend files to server
+                # Example deploy commands:
                 # scp -r * user@server:/path/to/project
-                # Restart backend server (systemctl or uwsgi)
+                # ssh user@server 'systemctl restart myapp'
                 '''
             }
         }
@@ -61,10 +70,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Check logs!'
+            echo '❌ Pipeline failed! Check the logs.'
         }
     }
 }
