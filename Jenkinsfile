@@ -1,67 +1,35 @@
 pipeline {
-    agent any
-
-    environment {
-        VENV_DIR = "${WORKSPACE}/venv"
-        FRONTEND_DIR = "${WORKSPACE}/frontend"
+    agent {
+        docker {
+            image 'python:3.12-bullseye'  // Python included
+            args '-u root'                // run as root
+        }
     }
 
     stages {
+        stage('Checkout') { steps { checkout scm } }
 
-        stage('Checkout') {
+        stage('Setup') {
             steps {
-                echo 'Cloning repository...'
-                checkout scm
-            }
-        }
-
-        stage('Setup Python') {
-            steps {
-                echo 'Installing Python and virtual environment...'
                 sh '''
-                sudo apt-get update
-                sudo apt-get install -y python3 python3-venv python3-pip
-                python3 -m venv ${VENV_DIR}
-                source ${VENV_DIR}/bin/activate
+                python -m venv venv
+                source venv/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
+                apt-get update
+                apt-get install -y nodejs npm
                 '''
             }
         }
 
         stage('Backend Test') {
-            steps {
-                echo 'Running backend tests...'
-                sh '''
-                source ${VENV_DIR}/bin/activate
-                pytest tests/ || exit 1
-                '''
-            }
+            steps { sh 'source venv/bin/activate && pytest tests/' }
         }
 
-        stage('Setup Frontend') {
-            steps {
-                echo 'Installing frontend dependencies and building...'
-                sh '''
-                cd ${FRONTEND_DIR}
-                npm install
-                npm run build
-                '''
-            }
+        stage('Frontend') {
+            steps { sh 'cd frontend && npm install && npm run build' }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploying project...'
-                sh '''
-                # Add deploy commands here
-                '''
-            }
-        }
-    }
-
-    post {
-        success { echo '✅ Pipeline completed successfully!' }
-        failure { echo '❌ Pipeline failed. Check the logs.' }
+        stage('Deploy') { steps { echo 'Deploy here...' } }
     }
 }
