@@ -1,41 +1,27 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.12-bullseye'  // Python + pip
-            args '-u root:root'           // run commands as root
-        }
-    }
-
+    agent any
     environment {
         VENV_DIR = "${WORKSPACE}/venv"
         FRONTEND_DIR = "${WORKSPACE}/frontend"
     }
-
     stages {
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
-
         stage('Setup Environment') {
             steps {
                 sh '''
-                # Install Node.js and npm
-                apt-get update
-                apt-get install -y curl gnupg
-                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-                apt-get install -y nodejs
-
                 # Create Python virtual environment
                 python3 -m venv ${VENV_DIR}
                 source ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
+
+                # Install Node if not present (optional)
+                node --version || sudo apt-get update && sudo apt-get install -y nodejs npm
                 '''
             }
         }
-
         stage('Backend Test') {
             steps {
                 sh '''
@@ -44,7 +30,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Frontend Build') {
             steps {
                 sh '''
@@ -54,20 +39,12 @@ pipeline {
                 '''
             }
         }
-
         stage('Deploy') {
-            steps {
-                echo 'Deploy your app here (scp, ssh, etc.)'
-            }
+            steps { echo 'Deploy here...' }
         }
     }
-
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check logs.'
-        }
+        success { echo '✅ Pipeline completed successfully!' }
+        failure { echo '❌ Pipeline failed! Check logs.' }
     }
 }
