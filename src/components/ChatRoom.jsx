@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import "./ChatRoom.css";
+import "../style/ChatRoom.css";
 
 const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 

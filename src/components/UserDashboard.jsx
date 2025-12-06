@@ -1,7 +1,7 @@
 // UserDashboard.jsx
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import "./UserDashboard.css";
+import "../style/UserDashboard.css";
 
 const BACKEND_URL = "https://saqib9022ii.pythonanywhere.com"; // your backend
 

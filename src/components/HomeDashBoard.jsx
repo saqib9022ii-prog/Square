@@ -8,7 +8,7 @@ import {
   YAxis,
   Tooltip
 } from "recharts";
-import "./DashBoard.css";
+import "../style/DashBoard.css";
 
 const BASE_URL = "https://saqib9022ii.pythonanywhere.com";
 

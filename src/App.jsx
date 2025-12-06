@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/NavBar";
+import Navbar from "./components/Navigation/NavBar";
 import Home from "./components/Home";
-import Personal from "./components/Personal";
+import Personal from "./components/authentication/Personal";
 import Apps from "./components/Apps";
 import ChatRoom from "./components/ChatRoom";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/authentication/ProtectedRoute";
 import Render from "./components/Render";
 
 function App() {

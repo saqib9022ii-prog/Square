@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Personal.css";
-import UserDashboard from "./UserDashboard";
+import "../../style/Personal.css";
+import UserDashboard from "../UserDashboard";
 
 const BASE_URL = "https://saqib9022ii.pythonanywhere.com/auth";
 

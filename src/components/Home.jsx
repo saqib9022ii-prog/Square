@@ -1,12 +1,17 @@
 import React from "react";
 import HomeDashBoard from "./HomeDashBoard";
-import "./Home.css";
+import "../style/Home.css";
 
 function Home() {
   return (
     <>
-      <div className="homeContainer">
-      <HomeDashBoard /> 
+      <div className="home-wrapper">
+        <div className="home-grid">
+          <div className="home-card"></div>
+          <div className="home-card"></div>
+          <div className="home-card"></div>
+          <div className="home-card"></div>
+        </div>
       </div>
     </>
   );

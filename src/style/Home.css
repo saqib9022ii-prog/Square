@@ -1,0 +1,84 @@
+.homeContainer{
+  min-height: 100vh;
+  width: 100vw;
+
+  background-image: url("/homeback.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.home-wrapper {
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center; /* center vertically */
+  min-height: 60vh;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 220px));
+  gap: 1rem 1.25rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.home-card {
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  padding: 18px 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  text-align: center;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 420px;
+  }
+}
+.stylish-box {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+/* No-op placeholder to ensure file exists; will update CSS content next. */
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.style-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.style-row button {
+  background: #00bcd4;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
