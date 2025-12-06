@@ -1,9 +1,8 @@
 pipeline {
     agent {
         docker {
-            // Use Node 20 image with Debian (includes npm), Python installed below
-            image 'node:20-bullseye'
-            args '-u root' // run container as root to allow apt installs
+            image 'python:3.12-bullseye'  // Python + pip
+            args '-u root:root'           // run commands as root
         }
     }
 
@@ -15,17 +14,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Cloning repository...'
                 checkout scm
             }
         }
 
-        stage('Setup Python & Backend') {
+        stage('Setup Environment') {
             steps {
-                echo 'Installing Python, pip, and backend dependencies...'
                 sh '''
+                # Install Node.js and npm
                 apt-get update
-                apt-get install -y python3 python3-venv python3-pip
+                apt-get install -y curl gnupg
+                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+                apt-get install -y nodejs
+
+                # Create Python virtual environment
                 python3 -m venv ${VENV_DIR}
                 source ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
@@ -36,7 +38,6 @@ pipeline {
 
         stage('Backend Test') {
             steps {
-                echo 'Running backend tests...'
                 sh '''
                 source ${VENV_DIR}/bin/activate
                 pytest tests/ || exit 1
@@ -44,9 +45,8 @@ pipeline {
             }
         }
 
-        stage('Setup Frontend') {
+        stage('Frontend Build') {
             steps {
-                echo 'Installing frontend dependencies and building...'
                 sh '''
                 cd ${FRONTEND_DIR}
                 npm install
@@ -57,12 +57,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying project...'
-                sh '''
-                # Example deployment commands:
-                # scp -r * user@server:/path/to/project
-                # ssh user@server 'systemctl restart myapp'
-                '''
+                echo 'Deploy your app here (scp, ssh, etc.)'
             }
         }
     }
@@ -72,7 +67,7 @@ pipeline {
             echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed! Check the logs.'
+            echo '❌ Pipeline failed! Check logs.'
         }
     }
 }
