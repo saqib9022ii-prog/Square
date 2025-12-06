@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            // Use Node 20 (includes npm) and install Python on the fly
-            image 'node:20-bullseye'
-            args '-v /var/jenkins_home:/var/jenkins_home' // optional volume
-        }
-    }
+    agent any
 
     environment {
         VENV_DIR = "${WORKSPACE}/venv"
@@ -23,10 +17,10 @@ pipeline {
 
         stage('Setup Python') {
             steps {
-                echo 'Installing Python and setting up virtual environment...'
+                echo 'Installing Python and virtual environment...'
                 sh '''
-                apt-get update
-                apt-get install -y python3 python3-venv python3-pip
+                sudo apt-get update
+                sudo apt-get install -y python3 python3-venv python3-pip
                 python3 -m venv ${VENV_DIR}
                 source ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
@@ -60,20 +54,14 @@ pipeline {
             steps {
                 echo 'Deploying project...'
                 sh '''
-                # Example deploy commands:
-                # scp -r * user@server:/path/to/project
-                # ssh user@server 'systemctl restart myapp'
+                # Add deploy commands here
                 '''
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check the logs.'
-        }
+        success { echo '✅ Pipeline completed successfully!' }
+        failure { echo '❌ Pipeline failed. Check the logs.' }
     }
 }
