@@ -1,35 +1,78 @@
 pipeline {
     agent {
         docker {
-            image 'python:3.12-bullseye'  // Python included
-            args '-u root'                // run as root
+            // Use Node 20 image with Debian (includes npm), Python installed below
+            image 'node:20-bullseye'
+            args '-u root' // run container as root to allow apt installs
         }
     }
 
-    stages {
-        stage('Checkout') { steps { checkout scm } }
+    environment {
+        VENV_DIR = "${WORKSPACE}/venv"
+        FRONTEND_DIR = "${WORKSPACE}/frontend"
+    }
 
-        stage('Setup') {
+    stages {
+        stage('Checkout') {
             steps {
+                echo 'Cloning repository...'
+                checkout scm
+            }
+        }
+
+        stage('Setup Python & Backend') {
+            steps {
+                echo 'Installing Python, pip, and backend dependencies...'
                 sh '''
-                python -m venv venv
-                source venv/bin/activate
+                apt-get update
+                apt-get install -y python3 python3-venv python3-pip
+                python3 -m venv ${VENV_DIR}
+                source ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
-                apt-get update
-                apt-get install -y nodejs npm
                 '''
             }
         }
 
         stage('Backend Test') {
-            steps { sh 'source venv/bin/activate && pytest tests/' }
+            steps {
+                echo 'Running backend tests...'
+                sh '''
+                source ${VENV_DIR}/bin/activate
+                pytest tests/ || exit 1
+                '''
+            }
         }
 
-        stage('Frontend') {
-            steps { sh 'cd frontend && npm install && npm run build' }
+        stage('Setup Frontend') {
+            steps {
+                echo 'Installing frontend dependencies and building...'
+                sh '''
+                cd ${FRONTEND_DIR}
+                npm install
+                npm run build
+                '''
+            }
         }
 
-        stage('Deploy') { steps { echo 'Deploy here...' } }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying project...'
+                sh '''
+                # Example deployment commands:
+                # scp -r * user@server:/path/to/project
+                # ssh user@server 'systemctl restart myapp'
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check the logs.'
+        }
     }
 }
