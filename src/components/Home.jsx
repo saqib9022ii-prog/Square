@@ -7,10 +7,10 @@ function Home() {
     <>
       <div className="home-wrapper">
         <div className="home-grid">
-          <div className="home-card">home card</div>
-          <div className="home-card"></div>
-          <div className="home-card"></div>
-          <div className="home-card"></div>
+          <div className="home-card1"></div>
+          <div className="home-card2"></div>
+          <div className="home-card3"></div>
+          <div className="home-card4"></div>
         </div>
       </div>
     </>

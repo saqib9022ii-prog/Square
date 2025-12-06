@@ -41,6 +41,42 @@
   font-weight: 600;
 }
 
+.home-card1 {
+  background-image: url("/img1.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  min-height: 260px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.home-card2 {
+  background-image: url("/img2.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  min-height: 260px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.home-card3 {
+  background-image: url("/img3.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  min-height: 260px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.home-card4 {
+  background-image: url("/img4.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  min-height: 260px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
 @media (max-width: 600px) {
   .home-grid {
     grid-template-columns: 1fr;
