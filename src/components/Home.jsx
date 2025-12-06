@@ -7,9 +7,9 @@ function Home() {
     <>
       <div className="home-wrapper">
         <div className="home-grid">
-          <div className="home-card">Hello world</div>
-          <div className="home-card">Hello world 2</div>
-          <div className="home-card">Experimental Features</div>
+          <div className="home-card">home card</div>
+          <div className="home-card"></div>
+          <div className="home-card"></div>
           <div className="home-card"></div>
         </div>
       </div>
