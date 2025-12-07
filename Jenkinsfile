@@ -1,35 +1,50 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-bullseye'
+            args '-u root'
+        }
+    }
+
     environment {
         VENV_DIR = "${WORKSPACE}/venv"
         FRONTEND_DIR = "${WORKSPACE}/frontend"
     }
+
     stages {
         stage('Checkout') {
-            steps { checkout scm }
+            steps {
+                checkout scm
+            }
         }
+
         stage('Setup Environment') {
             steps {
                 sh '''
-                # Create Python virtual environment
+                apt-get update
+                apt-get install -y python3 python3-venv python3-pip
+
                 python3 -m venv ${VENV_DIR}
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
 
-                # Install Node if not present (optional)
-                node --version || sudo apt-get update && sudo apt-get install -y nodejs npm
+                node -v
+                npm -v
+                python --version
                 '''
             }
         }
+
         stage('Backend Test') {
             steps {
                 sh '''
-                source ${VENV_DIR}/bin/activate
-                pytest tests/ || exit 1
+                . ${VENV_DIR}/bin/activate
+                pytest tests/
                 '''
             }
         }
+
         stage('Frontend Build') {
             steps {
                 sh '''
@@ -39,12 +54,20 @@ pipeline {
                 '''
             }
         }
+
         stage('Deploy') {
-            steps { echo 'Deploy here...' }
+            steps {
+                echo 'Deploy here...'
+            }
         }
     }
+
     post {
-        success { echo '✅ Pipeline completed successfully!' }
-        failure { echo '❌ Pipeline failed! Check logs.' }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check logs.'
+        }
     }
 }
