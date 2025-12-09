@@ -1,73 +1,46 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18-bullseye'
-            args '-u root'
-        }
-    }
-
-    environment {
-        VENV_DIR = "${WORKSPACE}/venv"
-        FRONTEND_DIR = "${WORKSPACE}/frontend"
-    }
+    agent any
 
     stages {
-
-        stage('Setup Environment') {
+        stage('Checkout') {
             steps {
-                sh '''
-                python3 --version || (apt-get update && apt-get install -y python3 python3-venv python3-pip)
-
-                python3 -m venv ${VENV_DIR}
-                . ${VENV_DIR}/bin/activate
-
-                pip install --upgrade pip
-                if [ -f requirements.txt ]; then
-                    pip install -r requirements.txt
-                fi
-
-                node -v
-                npm -v
-                '''
+                checkout scm
             }
         }
 
-        stage('Backend Test') {
+        stage('Build Frontend') {
             steps {
-                sh '''
-                . ${VENV_DIR}/bin/activate
-                if [ -d tests ]; then
-                    pytest tests/
-                else
-                    echo "No tests directory found, skipping backend tests."
-                fi
-                '''
+                script {
+                    docker.image('node:20-bullseye').inside {
+                        sh '''
+                        cd front-end
+                        npm install
+                        npm run build
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Frontend Build') {
+        stage('Build Backend') {
             steps {
-                sh '''
-                if [ -d ${FRONTEND_DIR} ]; then
-                    cd ${FRONTEND_DIR}
-                    npm install
-                    npm run build
-                else
-                    echo "Frontend directory not found, skipping frontend build."
-                fi
-                '''
+                script {
+                    docker.image('python:3.13-slim').inside {
+                        sh '''
+                        cd back-end
+                        pip install -r requirements.txt
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo '✅ Deploy stage - add deployment steps here'
-            }
-        }
+        // Add additional stages (test, deploy, etc.) as needed
     }
 
     post {
-        success { echo '✅ Pipeline completed successfully!' }
-        failure { echo '❌ Pipeline failed! Check logs.' }
+        always {
+            echo "Pipeline finished."
+        }
     }
 }
