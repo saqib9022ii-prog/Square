@@ -10,11 +10,10 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-               steps {
-                 dir('client/front-end') {
-                  sh 'npm install'
-                   sh 'npm run build'
-        }
+                dir('client/front-end') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
             }
         }
 
