@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-bullseye'
+            args '-u root'
+        }
+    }
 
     environment {
         VENV_DIR = "${WORKSPACE}/venv"
@@ -8,34 +13,33 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/saqib9022ii-prog/Square.git'
-            }
-        }
-
-        stage('Setup Backend') {
+        stage('Setup Environment') {
             steps {
                 sh '''
-                # Install Python venv if not already
+                python3 --version || (apt-get update && apt-get install -y python3 python3-venv python3-pip)
+
                 python3 -m venv ${VENV_DIR}
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
+
                 pip install --upgrade pip
                 if [ -f requirements.txt ]; then
                     pip install -r requirements.txt
                 fi
+
+                node -v
+                npm -v
                 '''
             }
         }
 
-        stage('Backend Tests') {
+        stage('Backend Test') {
             steps {
                 sh '''
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
                 if [ -d tests ]; then
-                    pytest tests/ || exit 1
+                    pytest tests/
                 else
-                    echo "No tests found, skipping backend tests."
+                    echo "No tests directory found, skipping backend tests."
                 fi
                 '''
             }
@@ -45,11 +49,9 @@ pipeline {
             steps {
                 sh '''
                 if [ -d ${FRONTEND_DIR} ]; then
-                    # Use Docker Node image from host
-                    docker run --rm -v ${FRONTEND_DIR}:/app -w /app node:18-bullseye bash -c "
-                        npm install
-                        npm run build
-                    "
+                    cd ${FRONTEND_DIR}
+                    npm install
+                    npm run build
                 else
                     echo "Frontend directory not found, skipping frontend build."
                 fi
@@ -59,17 +61,13 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo '✅ Deploy stage - add your deployment steps here'
+                echo '✅ Deploy stage - add deployment steps here'
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check logs.'
-        }
+        success { echo '✅ Pipeline completed successfully!' }
+        failure { echo '❌ Pipeline failed! Check logs.' }
     }
 }
