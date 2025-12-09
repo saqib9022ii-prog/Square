@@ -10,15 +10,11 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                script {
-                    docker.image('node:20-bullseye').inside {
-                        sh """
-                        cd client/front-end
-                        npm install
-                        npm run build
-                        """
-                    }
-                }
+               steps {
+                 dir('client/front-end') {
+                  sh 'npm install'
+                   sh 'npm run build'
+        }
             }
         }
 
