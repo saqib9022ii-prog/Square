@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:18-bullseye'
-            args '-u root' // Run as root to access docker & install packages
+            args '-u root'
         }
     }
 
@@ -13,32 +13,19 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/saqib9022ii-prog/Square.git']]
-                ])
-            }
-        }
-
         stage('Setup Environment') {
             steps {
                 sh '''
-                # Install Python if not present
-                python3 --version || apt-get update && apt-get install -y python3 python3-venv python3-pip
+                python3 --version || (apt-get update && apt-get install -y python3 python3-venv python3-pip)
 
-                # Create virtual environment
                 python3 -m venv ${VENV_DIR}
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
 
-                # Upgrade pip & install backend requirements
                 pip install --upgrade pip
                 if [ -f requirements.txt ]; then
                     pip install -r requirements.txt
                 fi
 
-                # Ensure Node & npm are available
                 node -v
                 npm -v
                 '''
@@ -48,9 +35,9 @@ pipeline {
         stage('Backend Test') {
             steps {
                 sh '''
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
                 if [ -d tests ]; then
-                    pytest tests/ || exit 1
+                    pytest tests/
                 else
                     echo "No tests directory found, skipping backend tests."
                 fi
