@@ -12,11 +12,11 @@ pipeline {
             steps {
                 script {
                     docker.image('node:20-bullseye').inside {
-                        sh '''
-                        cd front-end
+                        sh """
+                        cd client/front-end
                         npm install
                         npm run build
-                        '''
+                        """
                     }
                 }
             }
