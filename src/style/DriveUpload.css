@@ -1,0 +1,19 @@
+.drive-upload {
+  max-width: 400px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.drive-upload input {
+  margin: 10px 0;
+}
+
+.drive-upload button {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.drive-upload p {
+  margin-top: 10px;
+  font-weight: bold;
+}

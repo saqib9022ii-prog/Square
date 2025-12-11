@@ -27,6 +27,11 @@ function Navbar() {
             <img src="/chat.png" alt="Chat" className="chat-icon"/>
           </NavLink>
         </li>
+        <li>
+          <NavLink to="/drive-upload" className="nav-link">
+          <img src="/drive.png" alt="Drive" className="drive-icon"/>
+          </NavLink>
+        </li>
       </ul>
 
       {/* Right navigation */}

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navigation/NavBar";
 import Home from "./components/Home";
 import Personal from "./components/authentication/Personal";
+import DriveUpload from "./components/DriveUpload";
 import Apps from "./components/Apps";
 import ChatRoom from "./components/ChatRoom";
 import ProtectedRoute from "./components/authentication/ProtectedRoute";
@@ -27,6 +28,7 @@ function App() {
           }
         />
           <Route path="/render" element={<Render/>}/>
+          <Route path="/drive-upload" element={<DriveUpload/>}/>
       </Routes>
     </Router>
   );
