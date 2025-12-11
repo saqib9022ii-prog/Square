@@ -27,7 +27,7 @@ function Navbar() {
             <img src="/chat.png" alt="Chat" className="chat-icon"/>
           </NavLink>
         </li>
-        <li>
+        <li className="nav-item drive">
           <NavLink to="/drive-upload" className="nav-link">
           <img src="/drive.png" alt="Drive" className="drive-icon"/>
           </NavLink>
