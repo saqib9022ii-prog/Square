@@ -84,7 +84,7 @@ function Apps() {
   return (
     <div className="file-manager">
       <img src="/mint.png" alt="mint" className="app-logo" /> 
-      <h2 className="mint">STORAGE</h2>
+      <h2 className="mint">SHARED FILES</h2>
       <p>Upload, view, and download your files securely.</p>
 
       <div className="upload-box">

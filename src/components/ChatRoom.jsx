@@ -8,20 +8,19 @@ export default function ChatRoom() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const lastIdRef = useRef(0); // track last fetched message id
+  const [sending, setSending] = useState(false); // prevent multiple sends
+  const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
   // ---------------- Load current user from localStorage ----------------
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser?.email) {
-      setCurrentUser(savedUser.email);
-    }
+    if (savedUser?.email) setCurrentUser(savedUser.email);
   }, []);
 
   // ---------------- Fetch initial messages once ----------------
   useEffect(() => {
-    if (!currentUser) return; // wait until user is loaded
+    if (!currentUser) return;
 
     const fetchInitial = async () => {
       try {
@@ -36,6 +35,7 @@ export default function ChatRoom() {
         console.error("Initial fetch error", err);
       }
     };
+
     fetchInitial();
   }, [currentUser]);
 
@@ -68,28 +68,25 @@ export default function ChatRoom() {
 
   // ---------------- Send message ----------------
   const sendMessage = async () => {
-    if (!message.trim() || !currentUser) return;
+    if (!message.trim() || !currentUser || sending) return;
 
-    const payload = {
-      sender: currentUser,
-      message
-    };
-
-    setMessage(""); // optimistic UI
+    setSending(true);
+    const payload = { sender: currentUser, message };
 
     try {
       await axios.post(`${BASE_URL}/chat/send`, payload, {
         withCredentials: true
       });
+      setMessage(""); // clear input after send
     } catch (err) {
       console.error("Send message error", err);
       alert("Failed to send message. Try again.");
+    } finally {
+      setSending(false);
     }
   };
 
-  if (!currentUser) {
-    return <p>Loading chat...</p>;
-  }
+  if (!currentUser) return <p>Loading chat...</p>;
 
   return (
     <div className="chat-container">
@@ -99,9 +96,7 @@ export default function ChatRoom() {
         {messages.map(m => (
           <div
             key={m.id}
-            className={`chat-message ${
-              m.sender === currentUser ? "mine" : "theirs"
-            }`}
+            className={`chat-message ${m.sender === currentUser ? "mine" : "theirs"}`}
           >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
@@ -110,15 +105,23 @@ export default function ChatRoom() {
         <div ref={bottomRef}></div>
       </div>
 
-      <div className="chat-input">
+      {/* ---------------- Input form ---------------- */}
+      <form
+        className="chat-input"
+        onSubmit={e => {
+          e.preventDefault(); // prevent page reload
+          sendMessage();
+        }}
+      >
         <input
           value={message}
           onChange={e => setMessage(e.target.value)}
           placeholder="Type a message..."
-          onKeyDown={e => e.key === "Enter" && sendMessage()}
         />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+        <button type="submit" disabled={sending}>
+          Send
+        </button>
+      </form>
     </div>
   );
 }
