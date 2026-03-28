@@ -8,17 +8,34 @@ export default function ChatRoom() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [sending, setSending] = useState(false); // prevent multiple sends
+  const [sending, setSending] = useState(false);
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
-  // ---------------- Load current user from localStorage ----------------
+  // ---------------- Load current user ----------------
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser?.email) setCurrentUser(savedUser.email);
   }, []);
 
-  // ---------------- Fetch initial messages once ----------------
+  // ---------------- Request Notification Permission ----------------
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // ---------------- Show Notification ----------------
+  const showNotification = (msg) => {
+    if (Notification.permission === "granted") {
+      new Notification(`New message from ${msg.sender}`, {
+        body: msg.message,
+        icon: "/icon.png" // optional (place in public folder)
+      });
+    }
+  };
+
+  // ---------------- Fetch initial messages ----------------
   useEffect(() => {
     if (!currentUser) return;
 
@@ -27,6 +44,7 @@ export default function ChatRoom() {
         const res = await axios.get(`${BASE_URL}/chat/messages?after=0`, {
           withCredentials: true
         });
+
         if (res.data.length > 0) {
           setMessages(res.data);
           lastIdRef.current = res.data[res.data.length - 1].id;
@@ -39,7 +57,7 @@ export default function ChatRoom() {
     fetchInitial();
   }, [currentUser]);
 
-  // ---------------- Poll new messages every 2 seconds ----------------
+  // ---------------- Poll new messages ----------------
   useEffect(() => {
     if (!currentUser) return;
 
@@ -49,7 +67,15 @@ export default function ChatRoom() {
           `${BASE_URL}/chat/messages?after=${lastIdRef.current}`,
           { withCredentials: true }
         );
+
         if (res.data.length > 0) {
+          // 🔔 Trigger notifications
+          res.data.forEach(msg => {
+            if (msg.sender !== currentUser) {
+              showNotification(msg);
+            }
+          });
+
           setMessages(prev => [...prev, ...res.data]);
           lastIdRef.current = res.data[res.data.length - 1].id;
         }
@@ -71,16 +97,18 @@ export default function ChatRoom() {
     if (!message.trim() || !currentUser || sending) return;
 
     setSending(true);
-    const payload = { sender: currentUser, message };
 
     try {
-      await axios.post(`${BASE_URL}/chat/send`, payload, {
-        withCredentials: true
-      });
-      setMessage(""); // clear input after send
+      await axios.post(
+        `${BASE_URL}/chat/send`,
+        { sender: currentUser, message },
+        { withCredentials: true }
+      );
+
+      setMessage("");
     } catch (err) {
       console.error("Send message error", err);
-      alert("Failed to send message. Try again.");
+      alert("Failed to send message");
     } finally {
       setSending(false);
     }
@@ -96,7 +124,9 @@ export default function ChatRoom() {
         {messages.map(m => (
           <div
             key={m.id}
-            className={`chat-message ${m.sender === currentUser ? "mine" : "theirs"}`}
+            className={`chat-message ${
+              m.sender === currentUser ? "mine" : "theirs"
+            }`}
           >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
@@ -105,11 +135,11 @@ export default function ChatRoom() {
         <div ref={bottomRef}></div>
       </div>
 
-      {/* ---------------- Input form ---------------- */}
+      {/* ✅ Form handles both Enter + Button (no duplicates) */}
       <form
         className="chat-input"
-        onSubmit={e => {
-          e.preventDefault(); // prevent page reload
+        onSubmit={(e) => {
+          e.preventDefault();
           sendMessage();
         }}
       >
