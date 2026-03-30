@@ -114,6 +114,14 @@ export default function ChatRoom() {
     }
   };
 
+  const formatTime = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
+
   if (!currentUser) return <p>Loading chat...</p>;
 
   return (
@@ -130,6 +138,9 @@ export default function ChatRoom() {
           >
             <strong>{m.sender}</strong>
             <p>{m.message}</p>
+            <span className="timestamp">
+              {formatTime(m.created_at)}
+            </span>
           </div>
         ))}
         <div ref={bottomRef}></div>
