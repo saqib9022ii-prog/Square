@@ -9,6 +9,7 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [sending, setSending] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
 
@@ -36,56 +37,93 @@ export default function ChatRoom() {
   };
 
   // ---------------- Fetch initial messages ----------------
-  useEffect(() => {
-    if (!currentUser) return;
+useEffect(() => {
+  if (!currentUser) return;
 
-    const fetchInitial = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/chat/messages?after=0`, {
-          withCredentials: true
-        });
+  const fetchInitial = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/chat/messages?after=0`, {
+        withCredentials: true
+      });
 
-        if (res.data.length > 0) {
-          setMessages(res.data);
-          lastIdRef.current = res.data[res.data.length - 1].id;
-        }
-      } catch (err) {
-        console.error("Initial fetch error", err);
+      if (res.data.length > 0) {
+        setMessages(res.data);
+        lastIdRef.current = res.data[res.data.length - 1].id;
       }
-    };
+    } catch (err) {
+      console.error("Initial fetch error", err);
+    }
+  };
 
-    fetchInitial();
-  }, [currentUser]);
+  fetchInitial();
+}, [currentUser]);
+
+useEffect(() => {
+  if (unreadCount > 0) {
+    document.title = `(${unreadCount}) Chat Room`;
+  } else {
+    document.title = "Chat Room";
+  }
+}, [unreadCount]);
+
+useEffect(() => {
+  const handleFocus = () => {
+    setUnreadCount(0);
+  };
+const handleVisibility = () => {
+  if(!document.hidden){
+    setUnreadCount(0);
+  }
+}
+  window.addEventListener("focus", handleFocus);
+  document.addEventListener("visibilitychange", handleVisibility);
+
+
+  return () =>{
+     window.removeEventListener("focus", handleFocus);
+    document.removeEventListener("visibilitychange", handleVisibility);
+  }
+}, []);
 
   // ---------------- Poll new messages ----------------
-  useEffect(() => {
-    if (!currentUser) return;
+   useEffect(() => {
+  if (!currentUser) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await axios.get(
-          `${BASE_URL}/chat/messages?after=${lastIdRef.current}`,
-          { withCredentials: true }
+  const interval = setInterval(async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/chat/messages?after=${lastIdRef.current}`,
+        { withCredentials: true }
+      );
+
+      if (res.data.length > 0) {
+        // 🔔 Filter only messages from others
+        const newMessages = res.data.filter(
+          msg => msg.sender !== currentUser
         );
 
-        if (res.data.length > 0) {
-          // 🔔 Trigger notifications
-          res.data.forEach(msg => {
-            if (msg.sender !== currentUser) {
-              showNotification(msg);
-            }
-          });
-
-          setMessages(prev => [...prev, ...res.data]);
-          lastIdRef.current = res.data[res.data.length - 1].id;
+        // 🔴 Increase unread count if tab is not active
+        if (document.hidden && newMessages.length > 0) {
+          setUnreadCount(prev => prev + newMessages.length);
         }
-      } catch (err) {
-        console.error("Polling error", err);
-      }
-    }, 2000);
 
-    return () => clearInterval(interval);
-  }, [currentUser]);
+        // 🔔 Optional popup notifications
+        newMessages.forEach(msg => showNotification(msg));
+
+        setMessages(prev => {
+  const existingIds = new Set(prev.map(m => m.id));
+  const filtered = res.data.filter(m => !existingIds.has(m.id));
+  return [...prev, ...filtered];
+    }); 
+        lastIdRef.current = res.data[res.data.length - 1].id;
+      }
+    } catch (err) {
+      console.error("Polling error", err);
+    }
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [currentUser]);
 
   // ---------------- Auto-scroll ----------------
   useEffect(() => {
