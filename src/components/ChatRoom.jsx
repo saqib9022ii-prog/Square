@@ -115,9 +115,9 @@ export default function ChatRoom() {
   };
 
   const formatTime = (timestamp) => {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString([], {
-    hour: "2-digit",
+  const date = new Date(timestamp + "Z");
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
     minute: "2-digit",
     hour12:true,
   });
