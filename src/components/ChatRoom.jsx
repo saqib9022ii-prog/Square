@@ -16,7 +16,7 @@ export default function ChatRoom() {
   // ---------------- Load current user ----------------
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser?.email) setCurrentUser(savedUser.email);
+    if (savedUser?.email) setCurrentUser(savedUser.email.split("@")[0]);
   }, []);
 
   // ---------------- Request Notification Permission ----------------
